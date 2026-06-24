@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ceas Analogic</title>
+  <style>
+    body {
+      background: radial-gradient(circle, #222 0%, #000 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      margin: 0;
+    }
+    canvas {
+      background-color: #111;
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="ceas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("ceas");
+    const ctx = canvas.getContext("2d");
+    const r = canvas.height / 2;
+    ctx.translate(r, r); 
+    const radius = r * 0.9;
+
+
+    let ora = 13, minut = 15, secunda = 30;
+
+    function deseneazaCeas() {
+      deseneazaFata(ctx, radius);
+      deseneazaMarcaje(ctx, radius);
+      deseneazaAce(ctx, radius);
+    }
+
+    function deseneazaFata(ctx, radius) {
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = "#333";
+      ctx.fill();
+
+    
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.05, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+    }
+
+    function deseneazaMarcaje(ctx, radius) {
+      ctx.font = radius * 0.15 + "px arial";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      for (let num = 1; num <= 12; num++) {
+        const ang = (num * Math.PI) / 6;
+        ctx.rotate(ang);
+        ctx.translate(0, -radius * 0.85);
+        ctx.rotate(-ang);
+        ctx.fillText(num.toString(), 0, 0);
+        ctx.rotate(ang);
+        ctx.translate(0, radius * 0.85);
+        ctx.rotate(-ang);
+      }
+    }
+
+    function deseneazaAce(ctx, radius) {
+      const now = new Date();
+      secunda += 0.02; 
+      if (secunda >= 60) {
+        secunda = 0;
+        minut++;
+        if (minut >= 60) {
+          minut = 0;
+          ora++;
+        }
+      }
+
+    
+      const secAng = (secunda * Math.PI) / 30;
+      const minAng = (minut * Math.PI) / 30 + (secAng / 60);
+      const hourAng = ((ora % 12) * Math.PI) / 6 + (minAng / 12);
+
+      deseneazaAcul(ctx, hourAng, radius * 0.5, radius * 0.07);
+      deseneazaAcul(ctx, minAng, radius * 0.75, radius * 0.05);
+      deseneazaAcul(ctx, secAng, radius * 0.9, radius * 0.02, "red");
+    }
+
+    function deseneazaAcul(ctx, pos, lungime, grosime, culoare = "#fff") {
+      ctx.beginPath();
+      ctx.lineWidth = grosime;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = culoare;
+      ctx.moveTo(0, 0);
+      ctx.rotate(pos);
+      ctx.lineTo(0, -lungime);
+      ctx.stroke();
+      ctx.rotate(-pos);
+    }
+
+    function animatie() {
+      ctx.clearRect(-r, -r, canvas.width, canvas.height);
+      deseneazaCeas();
+      requestAnimationFrame(animatie);
+    }
+
+    animatie();
+  </script>
+</body>
+</html>
